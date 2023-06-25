@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>打00戏</title>
+  <style>
+    #game-container {
+      width: 400px;
+      height: 600px;
+      border: 1px solid black;
+      position: relative;
+    }
+    #player {
+      width: 50px;
+      height: 50px;
+      background-color: blue;
+      position: absolute;
+      bottom: 0;
+    }
+    .enemy {
+      width: 50px;
+      height: 50px;
+      background-color: red;
+      position: absolute;
+      top: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>打飞机游戏</h1>
+  <div id="game-container">
+    <div id="player"></div>
+  </div>
+  <p>积分: <span id="score">0</span></p>
+  <button id="start-button">开始</button>
+  <button id="stop-button">结束</button>
+
+  <script>
+    var gameContainer = document.getElementById('game-container');
+    var player = document.getElementById('player');
+    var scoreElement = document.getElementById('score');
+    var startButton = document.getElementById('start-button');
+    var stopButton = document.getElementById('stop-button');
+
+    var gameInterval;
+    var score = 0;
+
+    function startGame() {
+      startButton.disabled = true;
+      stopButton.disabled = false;
+
+      gameInterval = setInterval(moveEnemies, 1000);
+      document.addEventListener('keydown', movePlayer);
+
+      updateScore();
+    }
+
+    function stopGame() {
+      startButton.disabled = false;
+      stopButton.disabled = true;
+
+      clearInterval(gameInterval);
+      document.removeEventListener('keydown', movePlayer);
+    }
+
+    function movePlayer(event) {
+      var leftPosition = parseInt(player.style.left) || 0;
+
+      if (event.key === 'ArrowLeft') {
+        player.style.left = leftPosition - 10 + 'px';
+      } else if (event.key === 'ArrowRight') {
+        player.style.left = leftPosition + 10 + 'px';
+      }
+    }
+
+    function moveEnemies() {
+      var enemies = document.getElementsByClassName('enemy');
+
+      for (var i = 0; i < enemies.length; i++) {
+        var enemy = enemies[i];
+        var topPosition = parseInt(enemy.style.top) || 0;
+        enemy.style.top = topPosition + 50 + 'px';
+
+        if (topPosition + 50 >= gameContainer.offsetHeight) {
+          enemy.remove();
+          score += 10;
+          updateScore();
+        }
+      }
+
+      createEnemy();
+    }
+
+    function createEnemy() {
+      var enemy = document.createElement('div');
+      enemy.className = 'enemy';
+      enemy.style.left = getRandomPosition() + 'px';
+      gameContainer.appendChild(enemy);
+    }
+
+    function getRandomPosition() {
+      var min = 0;
+      var max = gameContainer.offsetWidth - 50;
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function updateScore() {
+      scoreElement.textContent = score;
+    }
+
+    startButton.addEventListener('click', startGame);
+    stopButton.addEventListener('click', stopGame);
+  </script>
+</body>
+</html>
